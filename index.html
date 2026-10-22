@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#142746">
+<meta name="description" content="Unique Foundation School offers junior and senior secondary education from JSS 1 to SS 3.">
+<title>Unique Foundation School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf8ef;
+    --ink: #142746;
+    --accent: #183d6b;
+    --track: #e6e0d3;
+    --soft: #f2eddf;
+    --gold: #c6a45c;
+    --font: "Bricolage Grotesque", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: var(--font); color: var(--ink); background: var(--bg); }
+  body.is-loading { overflow: hidden; }
+
+  /* Preloader */
+  #preloader {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--bg);
+    transition: transform .8s cubic-bezier(.76, 0, .24, 1);
+  }
+  #preloader.done { transform: translateY(-100%); }
+  .logo { width: clamp(92px, 18vw, 132px); height: auto; display: block; }
+  .loader-name { margin-top: 12px; color: var(--ink); font-weight: 700; font-size: clamp(16px, 3vw, 21px); text-align: center; }
+  .bar {
+    width: clamp(140px, 28vw, 200px); height: 3px; margin-top: 24px;
+    background: var(--track); border-radius: 3px; overflow: hidden;
+  }
+  .bar span {
+    display: block; width: 100%; height: 100%;
+    background: var(--accent); transform: scaleX(0); transform-origin: left;
+  }
+  .count {
+    position: absolute;
+    left: clamp(20px, 4vw, 48px); bottom: clamp(16px, 4vw, 40px);
+    font-size: clamp(56px, 12vw, 120px); font-weight: 700; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #preloader { transition: opacity .3s; }
+    #preloader.done { transform: none; opacity: 0; }
+  }
+
+  /* Site */
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 72px 0; }
+  section.alt { background: var(--soft); }
+  h1, h2, h3 { line-height: 1.1; letter-spacing: -.02em; }
+  h1 { font-size: clamp(36px, 6vw, 64px); }
+  h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 12px; }
+  h3 { font-size: 20px; margin-bottom: 6px; }
+  p { line-height: 1.6; max-width: 62ch; }
+  .btn { display: inline-block; padding: 13px 22px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+  .btn.alt { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  
+  .nav { position: sticky; top: 0; z-index: 50; background: var(--bg); box-shadow: 0 1px 0 var(--track); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .brand img { width: 32px; height: 38px; flex: 0 0 auto; object-fit: contain; }
+  .nav ul { display: flex; gap: 22px; list-style: none; padding: 0; }
+  .nav ul a { text-decoration: none; font-weight: 500; }
+  .nav ul a:hover, footer a:hover { text-decoration: underline; }
+  .menu { display: none; background: none; border: 0; font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; }
+  @media (max-width: 860px) {
+    .menu { display: block; }
+    .nav ul { display: none; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column; gap: 14px; padding: 16px 20px; background: var(--bg); box-shadow: 0 8px 16px rgba(0,0,0,.08); }
+    .nav ul.open { display: flex; }
+  }
+
+  .ph { display: grid; place-items: center; min-height: 220px; border-radius: 14px; background: linear-gradient(135deg, #e8dfca, #c9d4df); color: #334762; font-size: 14px; text-align: center; padding: 18px; }
+  .two, .hero .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .hero { padding: 64px 0 72px; }
+  .hero .wrap { grid-template-columns: 1.1fr .9fr; }
+  .hero p { font-size: 19px; margin: 18px 0 26px; }
+  .hero .ph { min-height: 380px; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .facts { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 34px; padding-top: 20px; border-top: 2px solid var(--gold); font-size: 15px; }
+  .facts b { display: block; font-size: 17px; }
+  @media (max-width: 860px) { .two, .hero .wrap { grid-template-columns: 1fr; } }
+
+  .owner-card { margin-top: 20px; padding: 20px; border-left: 4px solid var(--gold); background: rgba(255,255,255,.55); border-radius: 0 10px 10px 0; }
+  .owner-card p { font-weight: 700; }
+  .levels { margin-top: 24px; border-top: 1px solid var(--ink); }
+  .levels div { display: grid; grid-template-columns: 200px 170px 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--track); }
+  .levels b { font-size: 18px; }
+  @media (max-width: 700px) { .levels div { grid-template-columns: 1fr; gap: 4px; } }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; margin-top: 24px; }
+  .grid3 article { padding: 20px; background: rgba(255,255,255,.55); border-radius: 12px; }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 24px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .steps li { counter-increment: s; padding-top: 14px; border-top: 3px solid var(--accent); line-height: 1.5; }
+  .steps li::before { content: counter(s); display: block; font-size: 28px; font-weight: 700; color: var(--accent); }
+  .list { list-style: none; padding: 0; margin-top: 12px; }
+  .list li { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--track); line-height: 1.5; }
+  .list time { min-width: 64px; font-weight: 700; color: var(--accent); }
+  .gal { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+  .gal .ph { min-height: 170px; }
+  .gal .ph:first-child { grid-column: span 2; }
+  blockquote { margin: 0; padding: 18px 20px; border-left: 4px solid var(--gold); line-height: 1.6; background: rgba(255,255,255,.55); border-radius: 0 10px 10px 0; }
+  @media (max-width: 520px) { .gal .ph:first-child { grid-column: auto; } }
+
+  form { display: grid; gap: 12px; }
+  label { display: grid; gap: 4px; font-weight: 500; }
+  input, select, textarea { width: 100%; padding: 12px; border: 1px solid #c9c2b4; border-radius: 8px; background: #fffefa; font: inherit; color: var(--ink); }
+  address { font-style: normal; line-height: 1.8; margin: 12px 0 20px; }
+  .contact-numbers { display: grid; gap: 10px; margin: 14px 0 20px; }
+  .contact-numbers a { font-weight: 700; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+  footer { background: var(--ink); color: #e6e9ed; padding: 48px 0 24px; }
+  .fgrid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
+  footer ul { list-style: none; padding: 0; line-height: 2; }
+  footer a { text-decoration: none; }
+  .copy { margin-top: 32px; font-size: 14px; opacity: .8; }
+  @media (max-width: 700px) { .fgrid { grid-template-columns: 1fr; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@5/dist/email.min.js"></script>
+<script>
+  // Keep the school's EmailJS public key. The existing script.js can handle the form
+  // once its EmailJS service and template IDs are configured.
+  if (window.emailjs) {
+    emailjs.init({ publicKey: "-MGqkdJtU0IfAsueo" });
+  }
+</script>
+<script src="script.js" defer></script>
+</head>
+<body class="is-loading">
+
+<div id="preloader" role="status" aria-label="Loading">
+  <img class="logo" src="logo.svg" alt="Unique Foundation School logo">
+  <div class="loader-name">UNIQUE FOUNDATION SCHOOL</div>
+  <div class="bar"><span id="bar"></span></div>
+  <div class="count" id="count">1</div>
+</div>
+
+
+
+<header class="nav"><div class="wrap">
+  <a class="brand" href="#home" aria-label="Unique Foundation School home">
+    <img src="logo.svg" alt="" aria-hidden="true">
+    UNIQUE FOUNDATION SCHOOL
+  </a>
+  <button class="menu" aria-expanded="false" aria-controls="links" type="button">Menu</button>
+  <nav aria-label="Main navigation"><ul id="links">
+    <li><a href="examportal.html" target="_blank">Exam Portal</a></li>
+    <li><a href="#about">About</a></li><li><a href="#academics">Academics</a></li><li><a href="#admissions">Admissions</a></li>
+    <li><a href="#news">News and Events</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#contact">Contact</a></li>
+  </ul></nav>
+</div></header>
+
+<main>
+<section class="hero" id="home"><div class="wrap">
+  <div>
+    <h1>Building strong foundations for lifelong success.</h1>
+    <p>Unique Foundation School supports students through junior and senior secondary education, from JSS 1 to SS 3, helping them grow in knowledge, character and confidence.</p>
+    <div class="btns"><a class="btn" href="#admissions">Enquire about admission</a><a class="btn alt" href="#contact">Contact the school</a></div>
+    <div class="facts">
+      <div><b>JSS 1 to SS 3</b>Junior and senior secondary</div>
+      <div><b>16 teachers</b>Supporting our learners</div>
+      <div><b>One school community</b>Learning and growth together</div>
+    </div>
+  </div>
+  <div class="ph" role="img" aria-label="School photo placeholder">Add a photo of the school or students here</div>
+</div></section>
+
+<section class="alt" id="about"><div class="wrap">
+  <div class="two">
+    <div>
+      <h2>About us</h2>
+      <p>Unique Foundation School is a secondary school serving learners from JSS 1 through SS 3. We value discipline, curiosity and character, and aim to help every student do their best in and beyond the classroom.</p>
+      <h3 style="margin-top:20px">Our mission</h3><p>To provide students with a sound education grounded in strong values.</p>
+      <h3 style="margin-top:14px">Our vision</h3><p>To prepare graduates to contribute with integrity in Nigeria and beyond.</p>
+      <h3 style="margin-top:14px">Our values</h3><p>Integrity, excellence, respect and service.</p>
+    </div>
+    <div>
+      <div class="ph" role="img" aria-label="School leadership photo placeholder">Add a school leadership photo here</div>
+      <div class="owner-card"><h3>School owner</h3><p>Ezeh Theresa Amaka</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="academics"><div class="wrap">
+  <h2>Academics</h2>
+  <p>Our secondary school pathway covers junior and senior secondary classes.</p>
+  <div class="levels">
+    <div><b>Junior Secondary</b><span>JSS 1 to JSS 3</span><span>Core learning and a strong foundation for the next stage of education.</span></div>
+    <div><b>Senior Secondary</b><span>SS 1 to SS 3</span><span>Further subject learning and preparation for students' next steps after secondary school.</span></div>
+  </div>
+  <h3 style="margin-top:48px">Learning beyond lessons</h3>
+  <div class="grid3">
+    <article><h3>Science and practical learning</h3><p>Opportunities to explore ideas through questions, activities and practical learning.</p></article>
+    <article><h3>ICT and research</h3><p>Building digital confidence and encouraging students to find and use information thoughtfully.</p></article>
+    <article><h3>Reading and communication</h3><p>Developing clear communication, comprehension and a habit of learning.</p></article>
+    <article><h3>Sports and activities</h3><p>Encouraging teamwork, participation and healthy habits through school activities.</p></article>
+    <article><h3>Personal development</h3><p>Supporting responsibility, respect and positive relationships in the school community.</p></article>
+    <article><h3>Exam readiness</h3><p>Helping students build the knowledge and study habits needed for examinations.</p></article>
+  </div>
+</div></section>
+
+<section class="alt" id="admissions"><div class="wrap">
+  <h2>Admissions</h2>
+  <p>For information about available places, admission requirements and the current school session, please contact the school.</p>
+  <ol class="steps">
+    <li><b>Make an enquiry</b><br>Call the school or send an enquiry using the contact details below.</li>
+    <li><b>Discuss the class</b><br>Tell us the year group you are interested in, from JSS 1 to SS 3.</li>
+    <li><b>Assessment and documents</b><br>The school will advise you about any assessment and required documents.</li>
+    <li><b>Next steps</b><br>Contact the school for the outcome, enrolment details and current fees.</li>
+  </ol>
+  <a class="btn" href="#contact">Start an enquiry</a>
+</div></section>
+
+<section id="news"><div class="wrap two" style="align-items:start">
+  <div>
+    <h2>School news</h2>
+    <ul class="list">
+      <li><span><b>School announcements</b><br>Contact the school for the latest notices and updates.</span></li>
+      <li><span><b>Academic information</b><br>Call the school office for current term dates and academic updates.</span></li>
+    </ul>
+  </div>
+  <div>
+    <h2>Events</h2>
+    <ul class="list">
+      <li><span><b>School calendar</b><br>Event dates are shared directly with students and families.</span></li>
+      <li><span><b>Want to know more?</b><br>Reach the school using either phone number below.</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<section class="alt" id="gallery"><div class="wrap">
+  <h2>Life at Unique Foundation School</h2>
+  <p>Replace these sample panels with photos from the school community.</p>
+  <div class="gal">
+    <div class="ph" role="img" aria-label="School gallery photo placeholder">School photo</div><div class="ph" role="img" aria-label="School gallery photo placeholder">Classroom photo</div><div class="ph" role="img" aria-label="School gallery photo placeholder">Student activity</div>
+    <div class="ph" role="img" aria-label="School gallery photo placeholder">School event</div><div class="ph" role="img" aria-label="School gallery photo placeholder">Learning activity</div><div class="ph" role="img" aria-label="School gallery photo placeholder">Campus photo</div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Our commitment to students</h2>
+  <div class="grid3">
+    <blockquote>We encourage students to be curious, work hard and take pride in their learning.</blockquote>
+    <blockquote>We value respect, responsibility and a strong partnership between school and family.</blockquote>
+  </div>
+</div></section>
+
+<section class="alt" id="contact"><div class="wrap two" style="align-items:start">
+  <div>
+    <h2>Contact us</h2>
+    <p>Call Unique Foundation School for admissions, school information or directions.</p>
+    <div class="contact-numbers">
+      <a href="tel:08134877684">0813 487 7684</a>
+      <a href="tel:08134565079">0813 456 5079</a>
+    </div>
+    <div class="ph" role="img" aria-label="School location placeholder">Add the school's address or map here</div>
+  </div>
+  <form id="f">
+    <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+    <input type="hidden" name="subject" value="Unique Foundation School enquiry">
+    <label>Parent or guardian name<input name="name" autocomplete="name" required></label>
+    <label>Phone number<input name="phone" type="tel" autocomplete="tel" required></label>
+    <label>Email<input name="email" type="email" autocomplete="email"></label>
+    
+    <label>Message<textarea name="message" rows="4"></textarea></label>
+    <button class="btn" type="submit">Send enquiry</button>
+    <p id="form-status" role="status" aria-live="polite"></p>
+  </form>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><h3 style="color:#fff">UNIQUE FOUNDATION SCHOOL</h3><p>Junior and senior secondary education from JSS 1 to SS 3.</p></div>
+    <div><h3 style="color:#fff">Links</h3><ul><li><a href="#about">About</a></li><li><a href="#academics">Academics</a></li><li><a href="#admissions">Admissions</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    <div><h3 style="color:#fff">Contact</h3><ul><li><a href="tel:08134877684">0813 487 7684</a></li><li><a href="tel:08134565079">0813 456 5079</a></li></ul></div>
+  </div>
+  <p class="copy">&copy; <span id="yr"></span> Unique Foundation School. All rights reserved.</p>
+</div></footer>
+
+<script>
+(function () {
+  var MIN = 1600;
+  var pre = document.getElementById('preloader');
+  var num = document.getElementById('count');
+  var bar = document.getElementById('bar');
+  var loaded = document.readyState === 'complete';
+  var start = performance.now();
+  window.addEventListener('load', function () { loaded = true; });
+  function ease(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
+  function tick(now) {
+    var t = Math.min((now - start) / MIN, 1);
+    var p = Math.max(1, Math.round(ease(t) * 100));
+    if (!loaded && p > 99) p = 99;
+    num.textContent = p;
+    bar.style.transform = 'scaleX(' + p / 100 + ')';
+    if (p < 100) requestAnimationFrame(tick); else finish();
+  }
+  function finish() {
+    setTimeout(function () {
+      pre.classList.add('done');
+      document.body.classList.remove('is-loading');
+      pre.addEventListener('transitionend', function () { pre.remove(); }, { once: true });
+      setTimeout(function () { if (pre.isConnected) pre.remove(); }, 1000);
+    }, 250);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+<script>
+  var menu = document.querySelector('.menu');
+  var links = document.getElementById('links');
+  menu.addEventListener('click', function () {
+    var open = links.classList.toggle('open');
+    menu.setAttribute('aria-expanded', String(open));
+  });
+  links.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') {
+      links.classList.remove('open');
+      menu.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
