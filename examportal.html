@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#142746">
+<meta name="robots" content="noindex">
+<title>Result Portal | Unique Foundation School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf8ef;
+    --ink: #142746;
+    --accent: #183d6b;
+    --track: #e6e0d3;
+    --soft: #f2eddf;
+    --gold: #c6a45c;
+    --muted: #5b6577;
+    --pass: #1e7a46;
+    --fail: #b3261e;
+    --font: "Bricolage Grotesque", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  [hidden] { display: none !important; }
+  body { font-family: var(--font); color: var(--ink); background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { line-height: 1.1; letter-spacing: -.02em; }
+  h1 { font-size: clamp(32px, 5vw, 48px); }
+  p { line-height: 1.6; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  /* Navigation (same as landing page) */
+  .nav { position: sticky; top: 0; z-index: 50; background: var(--bg); box-shadow: 0 1px 0 var(--track); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .brand img { width: 32px; height: 38px; flex: 0 0 auto; object-fit: contain; }
+  .nav ul { display: flex; gap: 22px; list-style: none; padding: 0; }
+  .nav ul a { text-decoration: none; font-weight: 500; }
+  .nav ul a:hover, footer a:hover { text-decoration: underline; }
+  .menu { display: none; background: none; border: 0; font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; }
+  @media (max-width: 860px) {
+    .brand { font-size: 15px; }
+    .menu { display: block; }
+    .nav ul { display: none; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column; gap: 14px; padding: 16px 20px; background: var(--bg); box-shadow: 0 8px 16px rgba(0,0,0,.08); }
+    .nav ul.open { display: flex; }
+  }
+
+  /* Portal */
+  .portal { flex: 1; padding: 56px 0 72px; }
+  .intro { margin-bottom: 28px; }
+  .intro p { margin-top: 12px; max-width: 56ch; color: var(--muted); font-size: 18px; }
+  .rule { width: 56px; height: 3px; background: var(--gold); margin-bottom: 18px; }
+  .card { background: #fffefa; border: 1px solid var(--track); border-radius: 14px; padding: 26px; }
+  .card.narrow { max-width: 440px; }
+
+  form { display: grid; gap: 14px; }
+  label { display: grid; gap: 6px; font-weight: 500; }
+  input, select { width: 100%; padding: 12px; border: 1px solid #c9c2b4; border-radius: 8px; background: #fff; font: inherit; color: var(--ink); }
+  .btn { display: inline-block; padding: 13px 22px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  .btn:hover { background: #122f53; }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .btn.alt { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+  .btn.alt:hover { background: var(--soft); }
+  .error { color: var(--fail); background: #fdeceb; border-radius: 8px; padding: 10px 12px; font-size: .95rem; }
+  .help { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--track); font-size: .92rem; color: var(--muted); }
+  .help a { font-weight: 700; color: var(--ink); text-decoration-color: var(--gold); text-underline-offset: 3px; }
+
+  /* Result sheet */
+  .sheet { max-width: 860px; }
+  .print-head { display: none; }
+  .info { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; padding-bottom: 20px; margin-bottom: 8px; border-bottom: 2px solid var(--gold); }
+  .info small { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .info strong { font-size: 1.05rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--track); }
+  th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .num { text-align: center; }
+  .grade { font-weight: 700; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 22px; }
+  .stat { background: var(--soft); border-radius: 10px; padding: 14px; text-align: center; }
+  .stat small { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .stat strong { font-size: 1.4rem; }
+  .pass { color: var(--pass); } .fail { color: var(--fail); }
+  .note { margin-top: 20px; font-size: .85rem; color: var(--muted); }
+  .actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .actions .btn { flex: 1; min-width: 150px; }
+
+  /* Phone: turn each subject row into a card */
+  @media screen and (max-width: 640px) {
+    .portal { padding: 36px 0 56px; }
+    .card { padding: 20px; }
+    table, thead, tbody, tr, td { display: block; }
+    thead { position: absolute; left: -9999px; }
+    tr { border: 1px solid var(--track); border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #fff; }
+    td { display: flex; justify-content: space-between; gap: 12px; border: 0; padding: 4px 0; text-align: right; }
+    td::before { content: attr(data-label); color: var(--muted); font-weight: 500; text-align: left; }
+    td.subject { display: block; text-align: left; font-weight: 700; font-size: 1.05rem; padding-bottom: 6px; }
+    td.subject::before { content: none; }
+  }
+
+  footer { background: var(--ink); color: #e6e9ed; padding: 28px 0; font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+
+  @media print {
+    body { background: #fff; }
+    .nav, footer, .actions, .intro, .help { display: none !important; }
+    .portal { padding: 0; }
+    .card { border: 0; padding: 0; }
+    .print-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+    .print-head img { width: 52px; height: auto; }
+    .print-head b { display: block; font-size: 20px; }
+    .stat { border: 1px solid #ccc; background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html#home" aria-label="Unique Foundation School home">
+    <img src="logo.svg" alt="" aria-hidden="true">
+    UNIQUE FOUNDATION SCHOOL
+  </a>
+  <button class="menu" aria-expanded="false" aria-controls="links" type="button">Menu</button>
+  <nav aria-label="Main navigation"><ul id="links">
+    <li><a href="index.html#home">Home</a></li>
+    <li><a href="index.html#admissions">Admissions</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul></nav>
+</div></header>
+
+<main class="portal"><div class="wrap">
+
+  <div class="intro" id="intro">
+    <div class="rule"></div>
+    <h1>Check your result</h1>
+    <p>Enter your Student ID and PIN, then choose the session and term you want to see.</p>
+  </div>
+
+  <!-- Lookup -->
+  <section id="searchView" class="card narrow">
+    <form id="lookup" autocomplete="off">
+      <label>Student ID
+        <input id="sid" placeholder="e.g. UFS/001" autocapitalize="characters" required>
+      </label>
+      <label>PIN
+        <input id="pin" type="password" placeholder="Your result PIN" required>
+      </label>
+      <label>Session
+        <select id="session"></select>
+      </label>
+      <label>Term
+        <select id="term"></select>
+      </label>
+      <div id="error" class="error" role="alert" hidden></div>
+      <button class="btn" id="submitBtn" type="submit">Check Result</button>
+    </form>
+    <p class="help">Lost your PIN or can't see your result? Call the school on
+      <a href="tel:08134877684">0813 487 7684</a> or <a href="tel:08134565079">0813 456 5079</a>.</p>
+  </section>
+
+  <!-- Result -->
+  <section id="resultView" class="card sheet" hidden>
+    <div class="print-head">
+      <img src="logo.svg" alt="">
+      <div><b>UNIQUE FOUNDATION SCHOOL</b>Student Result Sheet</div>
+    </div>
+    <div class="info" id="info"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th class="num">CA (40)</th>
+          <th class="num">Exam (60)</th>
+          <th class="num">Total</th>
+          <th class="num">Grade</th>
+          <th>Remark</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="summary" id="summary"></div>
+    <p class="note">This is a computer-generated result. For any correction, please contact the school office.</p>
+    <div class="actions">
+      <button class="btn" id="printBtn" type="button">Print Result</button>
+      <button class="btn alt" id="backBtn" type="button">Check Another Result</button>
+    </div>
+  </section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Unique Foundation School. All rights reserved.</span>
+  <a href="index.html#home">Back to main site</a>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const C = window.APP_CONFIG;
+  const db = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY, {
+    auth: { persistSession: false }
+  });
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => (
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+
+  const MESSAGES = {
+    invalid:   "Invalid Student ID or PIN. Please check and try again.",
+    locked:    "Too many wrong attempts. Please try again in 15 minutes.",
+    no_result: "No result has been published for this term yet."
+  };
+
+  function gradeOf(t) {
+    if (t >= 70) return ["A", "Excellent"];
+    if (t >= 60) return ["B", "Very Good"];
+    if (t >= 50) return ["C", "Good"];
+    if (t >= 45) return ["D", "Fair"];
+    if (t >= 40) return ["E", "Pass"];
+    return ["F", "Fail"];
+  }
+
+  function fill(sel, items, def) {
+    sel.innerHTML = items.map(v =>
+      `<option${v === def ? " selected" : ""}>${esc(v)}</option>`).join("");
+  }
+
+  fill($("session"), C.SESSIONS, C.DEFAULT_SESSION);
+  fill($("term"), C.TERMS, C.DEFAULT_TERM);
+  $("yr").textContent = new Date().getFullYear();
+
+  function showError(msg) {
+    const el = $("error");
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  function render(d) {
+    const s = d.student;
+    $("info").innerHTML = `
+      <div><small>Name</small><strong>${esc(s.name)}</strong></div>
+      <div><small>Student ID</small><strong>${esc(s.id)}</strong></div>
+      <div><small>Class</small><strong>${esc(s.class)}</strong></div>
+      <div><small>Term</small><strong>${esc(d.term)}, ${esc(d.session)}</strong></div>
+    `;
+
+    let grand = 0;
+    $("rows").innerHTML = d.subjects.map(sub => {
+      const ca = Number(sub.ca), exam = Number(sub.exam), total = ca + exam;
+      grand += total;
+      const [g, remark] = gradeOf(total);
+      return `
+        <tr>
+          <td class="subject" data-label="Subject">${esc(sub.subject)}</td>
+          <td class="num" data-label="CA (40)">${ca}</td>
+          <td class="num" data-label="Exam (60)">${exam}</td>
+          <td class="num" data-label="Total"><strong>${total}</strong></td>
+          <td class="num grade ${g === "F" ? "fail" : ""}" data-label="Grade">${g}</td>
+          <td data-label="Remark">${remark}</td>
+        </tr>`;
+    }).join("");
+
+    const avg = grand / d.subjects.length;
+    const passed = avg >= C.PASS_MARK;
+    $("summary").innerHTML = `
+      <div class="stat"><small>Total Score</small><strong>${grand}</strong></div>
+      <div class="stat"><small>Average</small><strong>${avg.toFixed(1)}%</strong></div>
+      <div class="stat"><small>Status</small>
+        <strong class="${passed ? "pass" : "fail"}">${passed ? "PASSED" : "FAILED"}</strong></div>
+    `;
+
+    $("intro").hidden = true;
+    $("searchView").hidden = true;
+    $("resultView").hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  $("lookup").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("error").hidden = true;
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    btn.textContent = "Checking...";
+    try {
+      const { data, error } = await db.rpc("get_result", {
+        p_student_id: $("sid").value.trim(),
+        p_pin: $("pin").value.trim(),
+        p_session: $("session").value,
+        p_term: $("term").value
+      });
+      if (error) throw error;
+      if (data.error) { showError(MESSAGES[data.error] || "Something went wrong."); return; }
+      render(data);
+    } catch (err) {
+      showError("Could not reach the server. Check your internet and try again.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Check Result";
+    }
+  });
+
+  $("backBtn").addEventListener("click", () => {
+    $("lookup").reset();
+    $("resultView").hidden = true;
+    $("intro").hidden = false;
+    $("searchView").hidden = false;
+  });
+
+  $("printBtn").addEventListener("click", () => window.print());
+
+  /* Mobile menu */
+  const menu = document.querySelector(".menu");
+  const links = $("links");
+  menu.addEventListener("click", () => {
+    const open = links.classList.toggle("open");
+    menu.setAttribute("aria-expanded", String(open));
+  });
+</script>
+</body>
+</html>

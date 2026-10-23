@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Result Admin</title>
+<style>
+  :root{--ink:#14202b;--muted:#5d6b78;--line:#dde3e9;--bg:#f4f6f8;--card:#fff;--accent:#1b5e8a;--ok:#1e7a46;--fail:#b3261e}
+  *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px;gap:16px}
+  header{text-align:center}
+  header h1{font-size:1.4rem;color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;width:100%;max-width:640px;padding:22px}
+  .card.narrow{max-width:400px}
+  h2{font-size:1.05rem;margin-bottom:8px}
+  .hint{color:var(--muted);font-size:.88rem;margin-bottom:12px;line-height:1.5}
+  code{background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.85em}
+  label{display:block;font-size:.85rem;font-weight:600;margin:14px 0 6px}
+  input[type=email],input[type=password]{width:100%;padding:12px;font-size:1rem;border:1px solid var(--line);border-radius:8px}
+  input[type=file]{width:100%;margin:6px 0 12px;font-size:.9rem}
+  button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;padding:11px 16px;border:1px solid var(--accent)}
+  button:disabled{opacity:.6;cursor:wait}
+  .primary{background:var(--accent);color:#fff}
+  .primary:hover{background:#154b6f}
+  .ghost{background:#fff;color:var(--accent)}
+  .ghost:hover{background:#eef4f8}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row button{flex:1;min-width:140px}
+  .msg{margin-top:14px;font-size:.9rem;border-radius:8px;padding:10px 12px;line-height:1.45}
+  .msg.ok{color:var(--ok);background:#e9f6ee}
+  .msg.error{color:var(--fail);background:#fdeceb}
+  #signOut{align-self:flex-end}
+  .full{width:100%;margin-top:12px}
+</style>
+</head>
+<body>
+
+<header><h1>Result Admin</h1></header>
+
+<section id="loginView" class="card narrow">
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input id="email" type="email" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" required>
+    <div id="loginError" class="msg error" hidden></div>
+    <button class="primary full" type="submit">Sign in</button>
+  </form>
+</section>
+
+<button class="ghost" id="signOut" hidden>Sign out</button>
+
+<main id="adminView" hidden style="display:contents">
+  <section class="card">
+    <h2>1. Upload students</h2>
+    <p class="hint">CSV columns: <code>student_id,name,class,pin</code>. Leave <code>pin</code> empty to auto-generate a 6-digit PIN. Uploading an existing student again resets their PIN.</p>
+    <input type="file" id="studentFile" accept=".csv">
+    <div class="row">
+      <button class="ghost" id="studentSample">Sample CSV</button>
+      <button class="primary" id="studentUpload">Upload students</button>
+    </div>
+    <div id="studentMsg" class="msg" hidden></div>
+    <button class="ghost full" id="pinDownload" hidden>Download PIN list</button>
+  </section>
+
+  <section class="card">
+    <h2>2. Upload results</h2>
+    <p class="hint">CSV columns: <code>student_id,session,term,subject,ca,exam</code> (one row per subject). CA is 0 to 40, exam is 0 to 60. Upload students first. Session and term must match the values in <code>config.js</code>.</p>
+    <input type="file" id="resultFile" accept=".csv">
+    <div class="row">
+      <button class="ghost" id="resultSample">Sample CSV</button>
+      <button class="primary" id="resultUpload">Upload results</button>
+    </div>
+    <div id="resultMsg" class="msg" hidden></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="config.js"></script>
+<script>
+  const C = window.APP_CONFIG;
+  const db = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY);
+  const $ = id => document.getElementById(id);
+
+  function say(el, text, ok){
+    el.textContent = text;
+    el.className = "msg " + (ok ? "ok" : "error");
+    el.hidden = false;
+  }
+
+  function parseCSV(file){
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: h => h.trim().toLowerCase(),
+        complete: r => resolve(r.data),
+        error: reject
+      });
+    });
+  }
+
+  function downloadCSV(name, rows){
+    const blob = new Blob([Papa.unparse(rows)], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function randomPin(){
+    const a = new Uint32Array(1);
+    crypto.getRandomValues(a);
+    return String(100000 + (a[0] % 900000));
+  }
+
+  /* ---------- AUTH ---------- */
+  async function route(){
+    const { data: { session } } = await db.auth.getSession();
+    let ok = false;
+    if (session) {
+      const { data } = await db.rpc("is_admin");
+      ok = data === true;
+    }
+    $("loginView").hidden = ok;
+    $("adminView").hidden = !ok;
+    $("signOut").hidden = !ok;
+    if (session && !ok) {
+      await db.auth.signOut();
+      say($("loginError"), "This account is not an admin.", false);
+    }
+  }
+
+  $("loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const { error } = await db.auth.signInWithPassword({
+      email: $("email").value.trim(),
+      password: $("password").value
+    });
+    if (error) return say($("loginError"), error.message, false);
+    $("loginError").hidden = true;
+    route();
+  });
+
+  $("signOut").addEventListener("click", async () => {
+    await db.auth.signOut();
+    route();
+  });
+
+  /* ---------- STUDENTS ---------- */
+  let lastPins = [];
+
+  $("studentSample").addEventListener("click", () => downloadCSV("students-sample.csv", [
+    { student_id: "UFS/001", name: "Ada Okafor", class: "JSS 1", pin: "" },
+    { student_id: "UFS/002", name: "Tunde Bello", class: "JSS 1", pin: "" }
+  ]));
+
+  $("studentUpload").addEventListener("click", async () => {
+    const msg = $("studentMsg");
+    $("pinDownload").hidden = true;
+    const file = $("studentFile").files[0];
+    if (!file) return say(msg, "Choose a CSV file first.", false);
+
+    const btn = $("studentUpload");
+    btn.disabled = true;
+    try {
+      const data = await parseCSV(file);
+      if (!data.length) throw new Error("The file has no rows.");
+
+      const rows = data.map((r, i) => {
+        const line = i + 2;
+        const student_id = (r.student_id || "").trim();
+        const name = (r.name || "").trim();
+        const cls = (r.class || "").trim();
+        let pin = (r.pin || "").trim();
+        if (!student_id || !name || !cls)
+          throw new Error(`Row ${line}: student_id, name and class are required.`);
+        if (!pin) pin = randomPin();
+        if (pin.length < 4)
+          throw new Error(`Row ${line}: PIN must be at least 4 characters.`);
+        return { student_id, name, class: cls, pin };
+      });
+
+      for (let i = 0; i < rows.length; i += 200) {
+        const { error } = await db.rpc("admin_upsert_students", { p_rows: rows.slice(i, i + 200) });
+        if (error) throw error;
+      }
+
+      lastPins = rows.map(r => ({
+        student_id: r.student_id.toUpperCase(), name: r.name, class: r.class, pin: r.pin
+      }));
+      say(msg, `${rows.length} students saved. Download the PIN list now, because PINs cannot be viewed later.`, true);
+      $("pinDownload").hidden = false;
+    } catch (e) {
+      say(msg, e.message || String(e), false);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $("pinDownload").addEventListener("click", () => downloadCSV("student-pins.csv", lastPins));
+
+  /* ---------- RESULTS ---------- */
+  $("resultSample").addEventListener("click", () => downloadCSV("results-sample.csv", [
+    { student_id: "UFS/001", session: "2026/2027", term: "First Term", subject: "Mathematics", ca: 32, exam: 48 },
+    { student_id: "UFS/001", session: "2026/2027", term: "First Term", subject: "English Language", ca: 30, exam: 41 }
+  ]));
+
+  $("resultUpload").addEventListener("click", async () => {
+    const msg = $("resultMsg");
+    const file = $("resultFile").files[0];
+    if (!file) return say(msg, "Choose a CSV file first.", false);
+
+    const btn = $("resultUpload");
+    btn.disabled = true;
+    try {
+      const data = await parseCSV(file);
+      if (!data.length) throw new Error("The file has no rows.");
+
+      const rows = data.map((r, i) => {
+        const line = i + 2;
+        const row = {
+          student_id: (r.student_id || "").trim(),
+          session: (r.session || "").trim(),
+          term: (r.term || "").trim(),
+          subject: (r.subject || "").trim(),
+          ca: Number(r.ca),
+          exam: Number(r.exam)
+        };
+        if (!row.student_id || !row.session || !row.term || !row.subject)
+          throw new Error(`Row ${line}: student_id, session, term and subject are required.`);
+        if (String(r.ca ?? "").trim() === "" || String(r.exam ?? "").trim() === "" ||
+            Number.isNaN(row.ca) || Number.isNaN(row.exam))
+          throw new Error(`Row ${line}: ca and exam must be numbers.`);
+        if (row.ca < 0 || row.ca > 40)
+          throw new Error(`Row ${line}: CA must be between 0 and 40.`);
+        if (row.exam < 0 || row.exam > 60)
+          throw new Error(`Row ${line}: exam must be between 0 and 60.`);
+        return row;
+      });
+
+      for (let i = 0; i < rows.length; i += 500) {
+        const { error } = await db.rpc("admin_upsert_results", { p_rows: rows.slice(i, i + 500) });
+        if (error) throw error;
+      }
+      say(msg, `${rows.length} result rows saved.`, true);
+    } catch (e) {
+      let text = e.message || String(e);
+      if (text.includes("foreign key"))
+        text = "A student_id in this file does not exist yet. Upload the students first (step 1).";
+      say(msg, text, false);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  route();
+</script>
+</body>
+</html>
