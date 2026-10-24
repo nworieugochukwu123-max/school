@@ -14,11 +14,13 @@
   header h1{font-size:1.4rem;color:var(--accent)}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;width:100%;max-width:640px;padding:22px}
   .card.narrow{max-width:400px}
+  .card.danger-card{border-color:#e6b3af}
   h2{font-size:1.05rem;margin-bottom:8px}
+  .danger-card h2{color:var(--fail)}
   .hint{color:var(--muted);font-size:.88rem;margin-bottom:12px;line-height:1.5}
   code{background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.85em}
   label{display:block;font-size:.85rem;font-weight:600;margin:14px 0 6px}
-  input[type=email],input[type=password]{width:100%;padding:12px;font-size:1rem;border:1px solid var(--line);border-radius:8px}
+  input[type=email],input[type=password],input[type=text]{width:100%;padding:12px;font-size:1rem;border:1px solid var(--line);border-radius:8px}
   input[type=file]{width:100%;margin:6px 0 12px;font-size:.9rem}
   button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;padding:11px 16px;border:1px solid var(--accent)}
   button:disabled{opacity:.6;cursor:wait}
@@ -26,6 +28,9 @@
   .primary:hover{background:#154b6f}
   .ghost{background:#fff;color:var(--accent)}
   .ghost:hover{background:#eef4f8}
+  .danger{background:var(--fail);color:#fff;border-color:var(--fail)}
+  .danger:hover:not(:disabled){background:#8f1d17}
+  .danger:disabled{cursor:not-allowed;opacity:.45}
   .row{display:flex;gap:10px;flex-wrap:wrap}
   .row button{flex:1;min-width:140px}
   .msg{margin-top:14px;font-size:.9rem;border-radius:8px;padding:10px 12px;line-height:1.45}
@@ -74,6 +79,18 @@
       <button class="primary" id="resultUpload">Upload results</button>
     </div>
     <div id="resultMsg" class="msg" hidden></div>
+  </section>
+
+  <section class="card danger-card">
+    <h2>Danger zone</h2>
+    <p class="hint">Deleting cannot be undone. <b>Delete all results</b> keeps your students and their PINs. <b>Reset everything</b> removes all students and all results. Your admin login is not affected.</p>
+    <label for="confirmText">Type <code>DELETE</code> to unlock the buttons</label>
+    <input id="confirmText" type="text" autocomplete="off" placeholder="DELETE">
+    <div class="row" style="margin-top:14px">
+      <button class="danger" id="delResults" disabled>Delete all results</button>
+      <button class="danger" id="delAll" disabled>Reset everything</button>
+    </div>
+    <div id="dangerMsg" class="msg" hidden></div>
   </section>
 </main>
 
@@ -257,6 +274,38 @@
       btn.disabled = false;
     }
   });
+
+  /* ---------- DANGER ZONE ---------- */
+  const confirmBox = $("confirmText");
+  const dangerBtns = [$("delResults"), $("delAll")];
+
+  confirmBox.addEventListener("input", () => {
+    const unlocked = confirmBox.value.trim() === "DELETE";
+    dangerBtns.forEach(b => b.disabled = !unlocked);
+  });
+
+  async function resetData(scope, doneText){
+    const msg = $("dangerMsg");
+    dangerBtns.forEach(b => b.disabled = true);
+    try {
+      const { error } = await db.rpc("admin_reset_data", { p_scope: scope });
+      if (error) throw error;
+      say(msg, doneText, true);
+      if (scope === "all") {
+        lastPins = [];
+        $("pinDownload").hidden = true;
+      }
+    } catch (e) {
+      say(msg, e.message || String(e), false);
+    } finally {
+      confirmBox.value = "";
+    }
+  }
+
+  $("delResults").addEventListener("click", () =>
+    resetData("results", "All results have been deleted. Students and PINs are unchanged."));
+  $("delAll").addEventListener("click", () =>
+    resetData("all", "Everything has been reset. All students and results are deleted."));
 
   route();
 </script>
