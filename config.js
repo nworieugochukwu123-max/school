@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-  SUPABASE_URL: "sb_publishable_3ByLMdz11VvNTj11BuvoSg_Zx8GjxOL",
+  SUPABASE_URL: "https://veltbapbzbdalznalbqo.supabase.co",
   SUPABASE_KEY: "sb_publishable_3ByLMdz11VvNTj11BuvoSg_Zx8GjxOL",
   SCHOOL_NAME: "Unique Foundation School",
   SESSIONS: ["2026/2027"],
