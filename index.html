@@ -149,6 +149,7 @@
   form { display: grid; gap: 12px; }
   label { display: grid; gap: 4px; font-weight: 500; }
   input, select, textarea { width: 100%; padding: 12px; border: 1px solid #c9c2b4; border-radius: 8px; background: #fffefa; font: inherit; color: var(--ink); }
+  .form-notice { position: fixed; right: 24px; bottom: 24px; z-index: 20; max-width: min(360px, calc(100vw - 48px)); margin: 0; padding: 14px 18px; border-radius: 8px; background: var(--ink); color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
   address { font-style: normal; line-height: 1.8; margin: 12px 0 20px; }
   .contact-numbers { display: grid; gap: 10px; margin: 14px 0 20px; }
   .contact-numbers a { font-weight: 700; text-decoration-color: var(--gold); text-underline-offset: 3px; }
@@ -159,14 +160,6 @@
   .copy { margin-top: 32px; font-size: 14px; opacity: .8; }
   @media (max-width: 700px) { .fgrid { grid-template-columns: 1fr; } }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@5/dist/email.min.js"></script>
-<script>
-  // Keep the school's EmailJS public key. The existing script.js can handle the form
-  // once its EmailJS service and template IDs are configured.
-  if (window.emailjs) {
-    emailjs.init({ publicKey: "-MGqkdJtU0IfAsueo" });
-  }
-</script>
 <script src="script.js" defer></script>
 </head>
 <body class="is-loading">
@@ -284,15 +277,13 @@
     <address>No. 3 Adamma Obimma Street<br>Awada, Obosi, Anambra State, Nigeria</address>
   </div>
   <form id="f" aria-label="Enquiry form">
-    <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
-    <input type="hidden" name="subject" value="Unique Foundation School enquiry">
     <label>Parent or guardian name<input name="name" autocomplete="name" required aria-label="Parent or guardian name"></label>
     <label>Phone number<input name="phone" type="tel" autocomplete="tel" required aria-label="Phone number"></label>
     <label>Email<input name="email" type="email" autocomplete="email" aria-label="Email address"></label>
     
     <label>Message<textarea name="message" rows="4" aria-label="Message"></textarea></label>
     <button class="btn" type="submit" aria-label="Send enquiry to Unique Foundation School">Send enquiry</button>
-    <p id="form-status" role="status" aria-live="polite"></p>
+    <p id="form-status" class="form-notice" role="status" aria-live="polite" hidden></p>
   </form>
 </div></section>
 </main>

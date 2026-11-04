@@ -42,7 +42,6 @@ school/
 - CSS3
 - JavaScript
 - Supabase
-- EmailJS
 - Papa Parse
 
 ## Portfolio-style overview
@@ -117,7 +116,7 @@ window.APP_CONFIG = {
 };
 ```
 
-You should update the Supabase credentials and EmailJS settings for your live deployment.
+You should update the Supabase credentials for your live deployment.
 
 ## Admin usage
 
